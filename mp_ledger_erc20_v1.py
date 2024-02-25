@@ -14,6 +14,7 @@ def parse_blocks(contract_address, contract_abi, initial_block, last_block, work
     for x in range(initial_block, last_block+1):
         events = contract.events.ERC20Transfer.get_logs(fromBlock=x, toBlock=x)
         if (events!=()):
+            print(events)
             for event in events:  
                 args = event["args"] 
                 tx_hash = event["transactionHash"].hex()  

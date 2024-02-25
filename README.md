@@ -21,6 +21,11 @@ load_dict_files.py
 > Outputs:
 - v1_event_enriched_ledger.txt
 
+mp_swap_event_tracker_v1.py
+> Iterates over the blocks to get a list of univ3 swap events for emeralds
+> Outputs:
+- swaps.txt
+
 Note: the following addresses keep appearing as negative balance
 0x75365dDb02bc316748fB9A2dc5a33B42f1fBA2E7
 0x1095dAE2AAA97E9e6B8C4dc307333Ae64D3a13C6
