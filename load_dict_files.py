@@ -30,5 +30,13 @@ for k in erc20:
     if(erc20[k] < 0):
         print(k)
 
-with open("./v1_event_enriched_ledger.txt", "w") as file:
+with open("./v1_event_enriched_ledger.json", "w") as file:
+    json.dump(erc20, file)
+
+erc20nz = {}
+
+for k in erc20:
+    if(erc20[k] > 0):
+        erc20nz[k] = erc20[k]
+with open("./v1_event_enriched_ledger_nonzero.json", "w") as file:
     json.dump(erc20, file)
