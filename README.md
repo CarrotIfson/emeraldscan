@@ -26,6 +26,11 @@ mp_swap_event_tracker_v1.py
 > Outputs:
 - swaps.txt
 
+load_dict_files.py
+> Loads swaps.txt and generates a json with spender, emerald balance, eth balance as a result of the swaps. The Emerald and ETH balance doesnt take into account if the spender != receiver on the uniswap trasnaction
+> Outputs:
+- v1_uni_swap_balances.json
+
 Note: the following addresses keep appearing as negative balance
 0x75365dDb02bc316748fB9A2dc5a33B42f1fBA2E7
 0x1095dAE2AAA97E9e6B8C4dc307333Ae64D3a13C6
