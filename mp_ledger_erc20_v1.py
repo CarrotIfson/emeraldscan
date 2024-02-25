@@ -42,7 +42,7 @@ if __name__ == '__main__':
     txs_with_erc20 = set()
     txs_with_erc721 = set()
     #multiprocess logic
-    num_process = 4
+    num_process = 1
     block_step = int((EMERALD_V1_LBLOCK - EMERALD_V1_FBLOCK) / num_process)
     workers_list = []
     queue = Queue()
