@@ -6,7 +6,7 @@ ETHERSCAN_API_KEY=
 
 ## V1 ##################################################################
 EMERALD_V1_ADR=0x1d2fc977cc1e1fbd57a8b7f81fcd5d541d8531dd
-EMERALD_V1_FBLOCK=19133336
+EMERALD_V1_FBLOCK=19133221
 # 19136544 22:25:11 02/01 circa exploit time
 # +12sec_block*16h*60min*60sec = 4800 blocks
 # 19136544 + 4800 = 19141344
