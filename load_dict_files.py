@@ -23,18 +23,12 @@ for k in erc20:
 #add addresses that only used erc721 to the ledger
 for k in erc721:
     if(k not in erc20): 
-        erc20[k] = erc721[k]
-
-
-for k in erc20:
-    if(erc20[k] < 0):
-        print(k)
+        erc20[k] = erc721[k]*10**6
 
 with open("./v1_event_enriched_ledger.json", "w") as file:
     json.dump(erc20, file)
 
 erc20nz = {}
-
 for k in erc20:
     if(erc20[k] != 0): 
         erc20nz[k] = erc20[k]
