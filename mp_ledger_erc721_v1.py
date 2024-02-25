@@ -9,20 +9,20 @@ def decode(hex):
     return codecs.decode(hex, 'hex').decode('utf-8')
 
 def parse_blocks(contract_address, contract_abi, initial_block, last_block, worker_id, queue):  
-    erc20_ledger = []
+    erc721_ledger = []
     contract = w3.eth.contract(address=w3.to_checksum_address(contract_address), abi=contract_abi)  
     for x in range(initial_block, last_block+1):
-        events = contract.events.ERC20Transfer.get_logs(fromBlock=x, toBlock=x)
+        events = contract.events.Transfer.get_logs(fromBlock=x, toBlock=x)
         if (events!=()):
             for event in events:  
-                args = event["args"] 
+                args = event["args"]
                 tx_hash = event["transactionHash"].hex()  
-                erc20_ledger.append((args["from"], args["to"], int(args["amount"]), tx_hash))
+                erc721_ledger.append((args["from"], args["to"], 1, tx_hash))
         if(x % 300 == 0):
             print(f"Worker {worker_id} still working...")
     
-    print(f"Worker {worker_id} found {len(erc20_ledger)} erc20 events") 
-    queue.put({"erc20_ledger":erc20_ledger, "worker_id":worker_id})
+    print(f"Worker {worker_id} found {len(erc721_ledger)} erc721 events") 
+    queue.put({"erc721_ledger":erc721_ledger, "worker_id":worker_id})
     
 
 config = dotenv_values(".env")
@@ -39,7 +39,7 @@ ALCHEMY_HTTP_ENDPOINT = config.get("ALCHEMY_HTTP_ENDPOINT")
 w3 = Web3(Web3.HTTPProvider(ALCHEMY_HTTP_ENDPOINT))
 if __name__ == '__main__':
     print(w3.is_connected())
-    txs_with_erc20 = set()
+    txs_with_erc721 = set()
     txs_with_erc721 = set()
     #multiprocess logic
     num_process = 4
@@ -58,30 +58,30 @@ if __name__ == '__main__':
         process.start()
 
     #CLOSE THREADS
-    erc20_ledger = {}
+    erc721_ledger = {}
     for p in range(0,num_process):
         result = queue.get()   
-        for r in result["erc20_ledger"]:
+        for r in result["erc721_ledger"]:
             sender = r[0]
             receiver = r[1]
             amount = r[2]  
-            if(erc20_ledger.get(sender, None) is None):
-                erc20_ledger[sender] = -amount
+            if(erc721_ledger.get(sender, None) is None):
+                erc721_ledger[sender] = -amount
             else:
-                erc20_ledger[sender] = erc20_ledger[sender]-amount
+                erc721_ledger[sender] = erc721_ledger[sender]-amount
 
-            if(erc20_ledger.get(receiver, None) is None):
-                erc20_ledger[receiver] = amount
+            if(erc721_ledger.get(receiver, None) is None):
+                erc721_ledger[receiver] = amount
             else:
-                erc20_ledger[receiver] = erc20_ledger[receiver]+amount
+                erc721_ledger[receiver] = erc721_ledger[receiver]+amount
 
         finished_worker = result["worker_id"]
         workers_list[finished_worker].join()
         print(f"joined worker {finished_worker}")
     print("All workers finished")
 
-    with open("./v1_event_erc20_ledger.txt", "w") as file:
-        json.dump(erc20_ledger, file)
+    with open("./v1_event_erc721_ledger.txt", "w") as file:
+        json.dump(erc721_ledger, file)
  
 
     

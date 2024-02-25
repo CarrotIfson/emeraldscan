@@ -11,12 +11,12 @@ def load(file_path):
 # ERC 20 v1
 file_path = 'v1_erc20_txs.txt'  
 v1_erc20_txs = load(file_path)
-if v1_erc20_txs is not None:
-    print("v1_erc20_txs: ", len(set(v1_erc20_txs)))
+print("v1_erc20_txs: ", len(set(v1_erc20_txs)))
 
 
 # ERC 20 v1
 file_path = 'v1_erc721_txs.txt'  
 v1_erc721_txs = load(file_path)
-if v1_erc721_txs is not None: 
-    print("v1_erc721_txs: ", len(set(v1_erc721_txs)))
+print("v1_erc721_txs: ", len(set(v1_erc721_txs)))
+
+
