@@ -72,7 +72,7 @@ for a in addresses:
     os_txs = ", ".join(os_swap[4]) 
 
 
-    result.append([a, emerald_bal_erc20_ev, emerald_bal_erc20_ev, emerald_enriched_bal, uni_emerald_spent, uni_eth_spent, uni_txs_list, os_eth_spent, os_eth_gained, os_emerald_bought, os_emeralds_sold, os_txs])
+    result.append([a, emerald_bal_transfer_ev, emerald_bal_erc20_ev, emerald_enriched_bal, uni_emerald_spent, uni_eth_spent, uni_txs_list, os_eth_spent, os_eth_gained, os_emerald_bought, os_emeralds_sold, os_txs])
 
 import csv
 with open("v1_correlation.csv", 'w', newline='') as csvfile:
