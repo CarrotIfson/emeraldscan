@@ -26,10 +26,15 @@ mp_swap_event_tracker_v1.py
 > Outputs:
 - swaps.txt
 
-load_swap_files.py
-> Loads swaps.txt and generates a json with spender, emerald balance, eth balance as a result of the swaps. The Emerald and ETH balance doesnt take into account if the spender != receiver on the uniswap trasnaction
+load_swap.py
+> Loads swaps.txt and generates a json with spender, emerald balance, eth balance, list of txs as a result of the swaps. The Emerald and ETH balance doesnt take into account if the spender != receiver on the uniswap trasnaction
 > Outputs:
 - v1_uni_swap_balances.json
+
+mp_swap_os_event_tracker_v1.py
+> Iterates over the blocks to get a list of OpenSea trades events for emeralds
+> Outputs:
+- swaps.txt
 
 Note: the following addresses keep appearing as negative balance
 0x75365dDb02bc316748fB9A2dc5a33B42f1fBA2E7

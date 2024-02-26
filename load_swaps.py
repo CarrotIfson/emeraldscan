@@ -13,17 +13,20 @@ file_path = 'swaps.txt'
 swaps = load(file_path)
 print("swaps: ", len(swaps))
 
-addr_balance = {}
-for s in swaps:
+addr_balance = {} 
+for s in swaps: 
     spender = s[0]
     receiver = s[1]
     emerald_balance = s[2]
     eth_balance = s[3]
+    tx_id = s[4]
     
     if spender not in addr_balance:
-        addr_balance[spender] = (0,0)
-    
-    addr_balance[spender] = (addr_balance[spender][0]-emerald_balance,addr_balance[spender][1]-eth_balance)
+        addr_balance[spender] = (0,0,[])
+     
+    txs = addr_balance[spender][2]
+    txs.append(tx_id)
+    addr_balance[spender] = (addr_balance[spender][0]-emerald_balance,addr_balance[spender][1]-eth_balance,txs)
 
 import json
 with open("./v1_uni_swap_balances.json", "w") as file:
