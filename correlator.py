@@ -14,11 +14,12 @@ def parse_os(file_path):
     os_swaps = {}
     sales = load(file_path)["sales"]
     for sale in sales:  
-        seller = sale["from"]
-        buyer = sale["to"]
+        seller = web3.Web3.to_checksum_address(sale["from"])
+        buyer = web3.Web3.to_checksum_address(sale["to"])
         price = int(sale["price"]["netAmount"]["raw"])
         tx_id = sale["txHash"] 
         
+
         if(buyer not in os_swaps):
             # eth_spent, eth_gained,emeralds_bought, emeralds_sold, tx
             os_swaps[buyer] = (0,0,0,0,[])
@@ -71,6 +72,8 @@ for a in addresses:
     os_emeralds_sold = os_swap[3]
     os_txs = ", ".join(os_swap[4]) 
 
+    if(a=="0xffac53fb7dfbe3bdd331ceede7be3ae63cd0d6c5"):
+        print(os_txs)
 
     result.append([a, emerald_bal_transfer_ev, emerald_bal_erc20_ev, emerald_enriched_bal, uni_emerald_spent, uni_eth_spent, uni_txs_list, os_eth_spent, os_eth_gained, os_emerald_bought, os_emeralds_sold, os_txs])
 
