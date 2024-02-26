@@ -26,7 +26,7 @@ mp_swap_event_tracker_v1.py
 > Outputs:
 - swaps.txt
 
-load_dict_files.py
+load_swap_files.py
 > Loads swaps.txt and generates a json with spender, emerald balance, eth balance as a result of the swaps. The Emerald and ETH balance doesnt take into account if the spender != receiver on the uniswap trasnaction
 > Outputs:
 - v1_uni_swap_balances.json
