@@ -105,22 +105,21 @@ for address in addresses:
     os_emeralds_sold = os_res[3]
     os_txs = ', '.join(set(os_res[4]))
 
-    emerald_balance_agg =  erc20_amount_in-erc20_amount_out+transfer_input_tx_count-transfer_output_tx_count
-    eth_balance = os_eth_gained - os_eth_spent + swap_ledger_ether_bought - swap_ledger_ether_sold
-
-    """
-    if(erc20_amount_in-erc20_amount_out+transfer_input_tx_count-transfer_output_tx_count<0):
+    emerald_balance_agg = fmt(erc20_amount_in-erc20_amount_out+transfer_input_tx_count-transfer_output_tx_count)
+    eth_balance = fmt(os_eth_gained - os_eth_spent + swap_ledger_ether_bought - swap_ledger_ether_sold)
+    
+    
+    if(address=="0xdf0524b1f1a7E60928aad50b6687103065694277"):
         print(f"Address {address}")
         print(f"BalanceERC20Trasnfer: in({erc20_amount_in}) out({erc20_amount_out}) : {erc20_amount_in-erc20_amount_out}")
         print(f"BalanceSwap = in({swap_ledger_emerald_bought}) out({swap_ledger_emerald_sold}) : {swap_ledger_emerald_bought-swap_ledger_emerald_sold}")
         print(f"Transfer = in({transfer_input_tx_count}) out({transfer_output_tx_count}): {transfer_input_tx_count-transfer_output_tx_count}")
-        print(f"OS = in({os_emeralds_bought}) out({os_emeralds_sold})")
-        #print(f"ERC20txs = {erc20_tx_list}")
-        #print(f"Swaptxs = {swap_ledger_tx_list}")
-        #print(f"OStxs = {os_txs}")
-        #print(f"Transfer = {len(transfer_tx_list)}")
-        print(f"OverallBalance = {erc20_amount_in-erc20_amount_out+transfer_input_tx_count-transfer_output_tx_count}") 
-    """
+        print(f"OSemerald = in({os_emeralds_bought}) out({os_emeralds_sold})")
+        print(f"OverallBalance = {emerald_balance_agg}") 
+        print(f"os_eth = {os_eth_gained} eth_spend = {os_eth_spent}") 
+        print(f"swap_eth = {swap_ledger_ether_bought} swap_eth_spend = {swap_ledger_ether_sold}")
+        print(f"txs = {swap_ledger_tx_list}")
+    
     correlation.append([address, emerald_balance_agg, eth_balance, erc20_input_tx_count, erc20_output_tx_count, erc20_amount_in, erc20_amount_out, erc20_balance,
                         transfer_input_tx_count, transfer_output_tx_count, transfer_output_balance, swap_ledger_emerald_bought,
                         swap_ledger_emerald_sold, swap_ledger_ether_bought, swap_ledger_ether_sold, swap_ledger_emerald_received,
