@@ -18,13 +18,6 @@ def parse_os(file_path):
         buyer = web3.Web3.to_checksum_address(sale["to"])
         price = int(sale["price"]["netAmount"]["raw"])
         tx_id = sale["txHash"] 
- 
-        if("0x63A0385777ba6103997610816ADE25BD93a2A90C".lower() in (seller.lower(), buyer.lower())):
-            print(seller)
-            print(buyer)
-            print(price)
-            print(tx_id)
-            print("")
 
         if(buyer not in os_swaps):
             # eth_spent, eth_gained,emeralds_bought, emeralds_sold, tx
@@ -72,7 +65,7 @@ addresses = set(erc20transfer_ledger.keys()).union(transfer_ledger.keys()).union
 print(f"Total addresses {len(addresses)}")
 
 
-correlation = [["addresses","erc20_input_tx_count","erc20_output_tx_count","erc20_amount_in",
+correlation = [["addresses","emerald_balance","eth_balance","erc20_input_tx_count","erc20_output_tx_count","erc20_amount_in",
                "erc20_amount_out","erc20_balance","erc20_tx_list","transfer_input_tx_count","transfer_output_tx_count",
                "transfer_output_balance","transfer_tx_list","swap_ledger_emerald_bought","swap_ledger_emerald_sold",
                "swap_ledger_ether_gained","swap_ledger_ether_spent","swap_ledger_emerald_received",
@@ -91,7 +84,7 @@ for address in addresses:
     transfer_input_tx_count = transfer_res[0]
     transfer_output_tx_count = transfer_res[1]
     transfer_output_balance = transfer_res[2]
-    transfer_tx_list = transfer_res[3]
+    transfer_tx_list = ', '.join(set(transfer_res[3]))
 
     swap_res = swap_ledger.get(address,(0,0,0,0,0,0,[]))
     swap_ledger_emerald_bought = swap_res[0] / 10**6
@@ -107,21 +100,24 @@ for address in addresses:
     os_eth_gained = os_res[1] / 10**18
     os_emeralds_bought = os_res[2]
     os_emeralds_sold = os_res[3]
-    os_txs = ','.join(os_res[4])
+    os_txs = ','.join(set(os_res[4]))
 
-    if(os_emeralds_bought>0 or os_emeralds_sold>0):
+    eth_balance = os_eth_gained - os_eth_spent + swap_ledger_ether_bought - swap_ledger_ether_sold
+    emerald_balance_agg = erc20_amount_in-erc20_amount_out+transfer_input_tx_count-transfer_output_tx_count
+    """
+    if(erc20_amount_in-erc20_amount_out+transfer_input_tx_count-transfer_output_tx_count<0):
         print(f"Address {address}")
         print(f"BalanceERC20Trasnfer: in({erc20_amount_in}) out({erc20_amount_out}) : {erc20_amount_in-erc20_amount_out}")
         print(f"BalanceSwap = in({swap_ledger_emerald_bought}) out({swap_ledger_emerald_sold}) : {swap_ledger_emerald_bought-swap_ledger_emerald_sold}")
         print(f"Transfer = in({transfer_input_tx_count}) out({transfer_output_tx_count}): {transfer_input_tx_count-transfer_output_tx_count}")
         print(f"OS = in({os_emeralds_bought}) out({os_emeralds_sold})")
-        print(f"ERC20txs = {erc20_tx_list}")
-        print(f"Swaptxs = {swap_ledger_tx_list}")
-        print(f"OStxs = {os_txs}")
-        #print(f"Transfer = {transfer_tx_list}")
-        input("____________________")
-
-    correlation.append([address, erc20_input_tx_count, erc20_output_tx_count, erc20_amount_in, erc20_amount_out, erc20_balance,erc20_tx_list,
+        #print(f"ERC20txs = {erc20_tx_list}")
+        #print(f"Swaptxs = {swap_ledger_tx_list}")
+        #print(f"OStxs = {os_txs}")
+        #print(f"Transfer = {len(transfer_tx_list)}")
+        print(f"OverallBalance = {erc20_amount_in-erc20_amount_out+transfer_input_tx_count-transfer_output_tx_count}") 
+    """
+    correlation.append([address, emerald_balance_agg, eth_balance, erc20_input_tx_count, erc20_output_tx_count, erc20_amount_in, erc20_amount_out, erc20_balance,erc20_tx_list,
                         transfer_input_tx_count, transfer_output_tx_count, transfer_output_balance, transfer_tx_list, swap_ledger_emerald_bought,
                         swap_ledger_emerald_sold, swap_ledger_ether_bought, swap_ledger_ether_sold, swap_ledger_emerald_received,
                         swap_ledger_eth_received, swap_ledger_tx_list, os_eth_spent, os_eth_gained, os_emeralds_bought, os_emeralds_sold,
