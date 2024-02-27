@@ -1,50 +1,33 @@
 # V1 Emerald Scanner
 
-mp_event_tx_scrapper_v1.py
-> Iterates over the blocks to get all transactions where a ERC20Transfer or Transfer Event occured
+v1_emerald_transfer_events.py
+> Iterates over the blocks an listen to Transfer events for the V1 contract
 > Outputs: 
-- v1_erc20_txs.txt
-- v1_erc721_txs.txt
+- v1_transfer_events.json 
+(tx_hash,block,sender,receiver,token_id)
+- v1_transfer_ledger.json
+(in_tx_count, out_tx_count, balance)
 
-mp_lerger_erc20_v1.py
-> Iterates over the blocks to get build a ledger based on the ERC20Trasnfer events
+v1_emerald_erc20transfer_events.py
+> Iterates over the blocks an listen to erc20Transfer events for the V1 contract
 > Outputs: 
-- v1_event_erc20_ledger.txt
+- v1_erc20transfer_events.json 
+(tx_hash,block,sender,receiver,amount)
+- v1_erc20transfer_ledger.json 
+(in_tx_count, out_tx_count, amount_in, amount_out, balance)
 
-mp_lerger_erc721_v1.py
-> Iterates over the blocks to get build a ledger based on the Trasnfer events
+v1_emerald_swap_events.py
+> Iterates over the blocks an listen to Uniswap SWAP events for the V1 contract
 > Outputs: 
-- v1_event_erc721_ledger.txt
+- v1_swap_events.json 
+(tx_hash,block,sender,receiver,emerald_amount,eth_amount)
+- v1_swap_ledger.json
+(emerald_in, emerald_out, eth_in, eth_out, emerald_received, eth_received, tx_list)
 
-load_dict_files.py
-> Reads v1_event_erc20_ledger.txt and v1_event_erc721_ledger.txt to produce an "enriched ledger" combining the two previous ones,
+v1_correlator.py
+> Reads the ledger outputs and os_event files and combines them into a csv
 > Outputs:
-- v1_event_enriched_ledger.txt
-
-mp_swap_event_tracker_v1.py
-> Iterates over the blocks to get a list of univ3 swap events for emeralds
-> Outputs:
-- swaps.txt
-
-load_swap.py
-> Loads swaps.txt and generates a json with spender, emerald balance, eth balance, list of txs as a result of the swaps. The Emerald and ETH balance doesnt take into account if the spender != receiver on the uniswap trasnaction
-> Outputs:
-- v1_uni_swap_balances.json
-
-mp_swap_os_event_tracker_v1.py
-> Iterates over the blocks to get a list of OpenSea trades events for emeralds
-> Outputs:
-- swaps.txt
-
-Note: the following addresses keep appearing as negative balance
-0x75365dDb02bc316748fB9A2dc5a33B42f1fBA2E7
-0x1095dAE2AAA97E9e6B8C4dc307333Ae64D3a13C6
-0xb9467aa7E6636C719De9858EA589a579bae53899
-0x0000000000000000000000000000000000000000
-
-The following has also an inconsistent balance:
-0x0B2680ED2EF5202c686Af9FdD996Ab7F857eCCe3
-
+- v1_correlation.csv
 
 Validation through:
 https://etherscan.io/balancecheck-tool
