@@ -25,7 +25,7 @@ def parse_blocks(contract_address, contract_abi, initial_block, last_block, work
         if(x % 300 == 0):
             print(f"Worker {worker_id} still working...")
     
-    print(f"Worker {worker_id} found {len(swap_events)} TRANSFER events")  
+    print(f"Worker {worker_id} found {len(swap_events)} SWAP events")  
     queue.put({"swap_events":swap_events, "worker_id":worker_id})
     
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         else:
             sender_emerald_in = swap_ledger[sender][0]
             sender_emerald_out = swap_ledger[sender][1]+emerald_amount 
-            sender_eth_in = swap_ledger[sender][2]+eth_amount
+            sender_eth_in = swap_ledger[sender][2]-eth_amount
             sender_eth_out = swap_ledger[sender][3]
         sender_emerald_received = swap_ledger[sender][4]
         sender_eth_received = swap_ledger[sender][5]
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                 receiver_eth_received = swap_ledger[receiver][5]
             else:
                 receiver_emerald_received = swap_ledger[receiver][4]
-                receiver_eth_received = swap_ledger[receiver][5]+eth_amount
+                receiver_eth_received = swap_ledger[receiver][5]-eth_amount
 
             receiver_txs = swap_ledger[receiver][6] + [tx_hash]
             swap_ledger[receiver] = (receiver_emerald_in,receiver_emerald_out,receiver_eth_in,receiver_eth_out,receiver_emerald_received,receiver_eth_received,receiver_txs)
