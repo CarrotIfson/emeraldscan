@@ -76,25 +76,27 @@ if __name__ == '__main__':
     #build ledger
     transfer_ledger = {}
     #key: address
-    #value: (in_tx_count, out_tx_count, balance)
+    #value: (in_tx_count, out_tx_count, balance,[tx_hash])
     for event in transfer_events:
         # event = (tx_hash,block,sender,receiver,token_id)
         tx_hash = event[0]
         sender = event[2]
-        receiver = event[3]
+        receiver = event[3] 
         if(sender not in transfer_ledger):
-            transfer_ledger[sender] = (0,0,0)  
+            transfer_ledger[sender] = (0,0,0,[])  
         sender_in_tx = transfer_ledger[sender][0]
         sender_out_tx = transfer_ledger[sender][1]+1
         sender_balance = transfer_ledger[sender][2]-1
-        transfer_ledger[sender] = (sender_in_tx, sender_out_tx, sender_balance)
+        sender_txs = transfer_ledger[sender][3] + [tx_hash]
+        transfer_ledger[sender] = (sender_in_tx, sender_out_tx, sender_balance,sender_txs)
 
         if(receiver not in transfer_ledger):
-            transfer_ledger[receiver] = (0,0,0)
+            transfer_ledger[receiver] = (0,0,0,[])
         receiver_in_tx = transfer_ledger[receiver][0]+1
         receiver_out_tx = transfer_ledger[receiver][1]
         receiver_balance = transfer_ledger[receiver][2]+1
-        transfer_ledger[receiver] = (receiver_in_tx, receiver_out_tx, receiver_balance)
+        receiver_txs = transfer_ledger[receiver][3] + [tx_hash]
+        transfer_ledger[receiver] = (receiver_in_tx, receiver_out_tx, receiver_balance, receiver_txs)
 
     #store TRANSFER ledger events 
     with open("./v1_transfer_ledger.json", "w") as file:
