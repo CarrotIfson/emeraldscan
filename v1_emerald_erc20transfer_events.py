@@ -94,14 +94,14 @@ if __name__ == '__main__':
         senders_txs = erc20transfer_ledger[sender][5] + [tx_hash]
         erc20transfer_ledger[sender] = (sender_in_tx, sender_out_tx, sender_amount_in, sender_amount_out, sender_balance, senders_txs)
 
-        if(receiver not in erc20transfer_ledger,[]):
+        if(receiver not in erc20transfer_ledger):
             erc20transfer_ledger[receiver] = (0,0,0,0,0,[])
         receiver_in_tx = erc20transfer_ledger[receiver][0]+1
         receiver_out_tx = erc20transfer_ledger[receiver][1]
         receiver_amount_in = erc20transfer_ledger[receiver][2]+amount
         receiver_amount_out = erc20transfer_ledger[receiver][3]
         receiver_balance = erc20transfer_ledger[receiver][4]+amount
-        receiver_txs = erc20transfer_ledger[sender][5] + [tx_hash]
+        receiver_txs = erc20transfer_ledger[receiver][5] + [tx_hash]
         erc20transfer_ledger[receiver] = (receiver_in_tx, receiver_out_tx, receiver_amount_in, receiver_amount_out, receiver_balance, receiver_txs)
 
     #store TRANSFER ledger events 

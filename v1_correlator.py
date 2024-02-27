@@ -66,7 +66,7 @@ print(f"Total addresses {len(addresses)}")
 
 
 correlation = [["addresses","erc20_input_tx_count","erc20_output_tx_count","erc20_amount_in",
-               "erc20_amount_out","erc20_balance","transfer_input_tx_count","transfer_output_tx_count",
+               "erc20_amount_out","erc20_balance","erc20_tx_list","transfer_input_tx_count","transfer_output_tx_count",
                "transfer_output_balance","swap_ledger_emerald_bought","swap_ledger_emerald_sold",
                "swap_ledger_ether_gained","swap_ledger_ether_spent","swap_ledger_emerald_received",
                "swap_ledger_eth_received","swap_ledger_tx_list","os_eth_spent","os_eth_gained",
@@ -78,7 +78,7 @@ for address in addresses:
     erc20_amount_in = erc20_res[2] / 10**6
     erc20_amount_out = erc20_res[3] / 10**6
     erc20_balance = erc20_res[4] / 10**6
-    #erc20_tx_list = ','.join(erc20_res[5])
+    erc20_tx_list = ', '.join(set(erc20_res[5]))
 
     transfer_res = transfer_ledger.get(address,(0,0,0))
     transfer_input_tx_count = transfer_res[0]
@@ -92,7 +92,7 @@ for address in addresses:
     swap_ledger_ether_sold = swap_res[3] / 10**18
     swap_ledger_emerald_received = swap_res[4] / 10**6
     swap_ledger_eth_received = swap_res[5] / 10**18
-    swap_ledger_tx_list = ','.join(swap_res[6])
+    swap_ledger_tx_list = ', '.join(set(swap_res[6]))
 
     os_res = os_swaps.get(address, (0,0,0,0,[]))
     os_eth_spent = os_res[0] / 10**18
@@ -101,7 +101,16 @@ for address in addresses:
     os_emeralds_sold = os_res[3]
     os_txs = ','.join(os_res[4])
 
-    correlation.append([address, erc20_input_tx_count, erc20_output_tx_count, erc20_amount_in, erc20_amount_out, erc20_balance,
+    print(f"Address {address}")
+    print(f"BalanceERC20Trasnfer = {erc20_amount_in}+{erc20_amount_out}")
+    print(f"BalanceSwap = {swap_ledger_emerald_bought}+{swap_ledger_emerald_sold} = {swap_ledger_emerald_bought-swap_ledger_emerald_sold}")
+    print(f"Transfer = {transfer_input_tx_count}+{transfer_output_tx_count}")
+    print(f"OS = {os_emeralds_bought}+{os_emeralds_sold}")
+    print(f"ERC20txs = {erc20_tx_list}")
+    print(f"Swaptxs = {swap_ledger_tx_list}")
+    input()
+
+    correlation.append([address, erc20_input_tx_count, erc20_output_tx_count, erc20_amount_in, erc20_amount_out, erc20_balance,erc20_tx_list,
                         transfer_input_tx_count, transfer_output_tx_count, transfer_output_balance, swap_ledger_emerald_bought,
                         swap_ledger_emerald_sold, swap_ledger_ether_bought, swap_ledger_ether_sold, swap_ledger_emerald_received,
                         swap_ledger_eth_received, swap_ledger_tx_list, os_eth_spent, os_eth_gained, os_emeralds_bought, os_emeralds_sold,
