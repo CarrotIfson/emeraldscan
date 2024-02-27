@@ -77,7 +77,7 @@ if __name__ == '__main__':
     #build ledger
     swap_ledger = {}
     #key: address
-    #value: (emerald_in, emerald_out, eth_in, eth_out, emerald_received, eth_received, tx_list)
+    #value: (emerald_in, emerald_out, eth_in, eth_out, emerald_received, eth_received, tx_list ,received_from)
     for event in swap_events:
         # event = (tx_hash,block,sender,receiver,emerald_amount,eth_amount)
         tx_hash = event[0]
@@ -87,7 +87,7 @@ if __name__ == '__main__':
         eth_amount = event[5]
 
         if(sender not in swap_ledger):
-            swap_ledger[sender] = (0, 0, 0, 0, 0, 0, [])
+            swap_ledger[sender] = (0, 0, 0, 0, 0, 0, [], [])
             
         if(emerald_amount<0):
             sender_emerald_in = swap_ledger[sender][0]-emerald_amount
@@ -103,11 +103,12 @@ if __name__ == '__main__':
         sender_eth_received = swap_ledger[sender][5]
 
         sender_txs = swap_ledger[sender][6] + [tx_hash]
-        swap_ledger[sender] = (sender_emerald_in,sender_emerald_out,sender_eth_in,sender_eth_out,sender_emerald_received,sender_eth_received,sender_txs)
+        received_from = swap_ledger[sender][7] 
+        swap_ledger[sender] = (sender_emerald_in,sender_emerald_out,sender_eth_in,sender_eth_out,sender_emerald_received,sender_eth_received,sender_txs,received_from)
 
         if(sender != receiver): 
             if(receiver not in swap_ledger):
-                swap_ledger[receiver] = (0, 0, 0, 0, 0, 0, [])
+                swap_ledger[receiver] = (0, 0, 0, 0, 0, 0, [], [])
             receiver_emerald_in = swap_ledger[receiver][0]
             receiver_emerald_out = swap_ledger[receiver][1]
             receiver_eth_in = swap_ledger[receiver][2]
@@ -119,8 +120,10 @@ if __name__ == '__main__':
                 receiver_emerald_received = swap_ledger[receiver][4]
                 receiver_eth_received = swap_ledger[receiver][5]-eth_amount
 
-            receiver_txs = swap_ledger[receiver][6] + [tx_hash]
-            swap_ledger[receiver] = (receiver_emerald_in,receiver_emerald_out,receiver_eth_in,receiver_eth_out,receiver_emerald_received,receiver_eth_received,receiver_txs)
+            receiver_txs = swap_ledger[receiver][6] + [tx_hash] 
+            received_from = swap_ledger[sender][7] + [sender]
+            
+            swap_ledger[receiver] = (receiver_emerald_in,receiver_emerald_out,receiver_eth_in,receiver_eth_out,receiver_emerald_received,receiver_eth_received,receiver_txs,received_from)
 
 
     #store TRANSFER ledger events 

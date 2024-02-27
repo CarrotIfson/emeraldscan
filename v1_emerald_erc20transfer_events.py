@@ -77,7 +77,7 @@ if __name__ == '__main__':
     #build ledger
     erc20transfer_ledger = {}
     #key: address
-    #value: (in_tx_count, out_tx_count, amount_in, amount_out, balance)
+    #value: (in_tx_count, out_tx_count, amount_in, amount_out, balance, [txs])
     for event in erc20transfer_events:
         # event = (tx_hash,block,sender,receiver,amount)
         tx_hash = event[0]
@@ -91,8 +91,8 @@ if __name__ == '__main__':
         sender_amount_in = erc20transfer_ledger[sender][2]
         sender_amount_out = erc20transfer_ledger[sender][3]+amount
         sender_balance = erc20transfer_ledger[sender][4]-amount
-        senders_txs = erc20transfer_ledger[sender][5] + [tx_hash]
-        erc20transfer_ledger[sender] = (sender_in_tx, sender_out_tx, sender_amount_in, sender_amount_out, sender_balance, senders_txs)
+        senders_txs = erc20transfer_ledger[sender][5] + [tx_hash] 
+        erc20transfer_ledger[sender] = (sender_in_tx, sender_out_tx, sender_amount_in, sender_amount_out, sender_balance, set(senders_txs))
 
         if(receiver not in erc20transfer_ledger):
             erc20transfer_ledger[receiver] = (0,0,0,0,0,[])
@@ -101,8 +101,8 @@ if __name__ == '__main__':
         receiver_amount_in = erc20transfer_ledger[receiver][2]+amount
         receiver_amount_out = erc20transfer_ledger[receiver][3]
         receiver_balance = erc20transfer_ledger[receiver][4]+amount
-        receiver_txs = erc20transfer_ledger[receiver][5] + [tx_hash]
-        erc20transfer_ledger[receiver] = (receiver_in_tx, receiver_out_tx, receiver_amount_in, receiver_amount_out, receiver_balance, receiver_txs)
+        receiver_txs = erc20transfer_ledger[receiver][5] + [tx_hash] 
+        erc20transfer_ledger[receiver] = (receiver_in_tx, receiver_out_tx, receiver_amount_in, receiver_amount_out, receiver_balance, set(receiver_txs))
 
     #store TRANSFER ledger events 
     with open("./v1_erc20transfer_ledger.json", "w") as file:
