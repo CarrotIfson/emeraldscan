@@ -33,8 +33,9 @@ config = dotenv_values(".env")
 
 EMERALD_V1_FBLOCK=int(config.get("EMERALD_V1_FBLOCK"))
 EMERALD_V1_LBLOCK=int(config.get("EMERALD_V1_LBLOCK"))
-UNI_V1_POOL_ADR = config.get("V1_UNI_POOL_ADDR")
-UNI_V1_POOL_ABI = config.get("V1_UNI_POOL_ABI")
+UNI_V1_POOL_ADR = config.get("UNI_V1_POOL_ADR")
+UNI_V1_POOL_ABI = config.get("UNI_V1_POOL_ABI")
+
 
 ALCHEMY_HTTP_ENDPOINT = config.get("ALCHEMY_HTTP_ENDPOINT").split(",")[1]
 

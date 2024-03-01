@@ -51,6 +51,13 @@ def dec(val):
 def fmt(val):
     return float(format(val, ".4"))
 
+def dictify(values): 
+    res = dict()
+    for h in range(len(headers)):
+       res[headers[h]] = values[h]
+    return res
+
+
 def parse_transfers(tx_list):
     res = {}
     for tx in tx_list:
@@ -78,13 +85,14 @@ os_swaps = parse_os("./v1_os_events.json")
 addresses = set(erc20transfer_ledger.keys()).union(transfer_ledger.keys()).union(swap_ledger.keys()).union(os_swaps.keys())
 print(f"Total addresses {len(addresses)}")
 
-
-correlation = [["addresses","emerald_balance","eth_balance","erc20_input_tx_count","erc20_output_tx_count","erc20_amount_in",
+headers = ["addresses","emerald_balance","eth_balance","erc20_input_tx_count","erc20_output_tx_count","erc20_amount_in",
                "erc20_amount_out","erc20_balance","transfer_input_tx_count","transfer_output_tx_count",
                "transfer_output_balance","swap_ledger_emerald_bought","swap_ledger_emerald_sold",
                "swap_ledger_ether_gained","swap_ledger_ether_spent","swap_ledger_emerald_received",
-               "swap_ledger_eth_received","swap_ledger_tx_list","os_eth_spent","os_eth_gained",
-               "os_emeralds_bought","os_emeralds_sold"]]
+               "swap_ledger_eth_received","swap_ledger_tx_list","swap_ledger_received_from",
+               "os_eth_spent","os_eth_gained", "os_emeralds_bought","os_emeralds_sold","os_txs"]
+correlation = {}
+cluster = {}
 
 total_loss = 0
 total_eth_bal = 0
@@ -105,7 +113,7 @@ for address in addresses:
     transfer_inbound = parse_transfers(transfer_res[4])
     transfer_outbound = parse_transfers(transfer_res[5])
  
-    swap_res = swap_ledger.get(address,(0,0,0,0,0,0,[]))
+    swap_res = swap_ledger.get(address,(0,0,0,0,0,0,[], []))
     swap_ledger_emerald_bought = fmt(swap_res[0] / 10**6)
     swap_ledger_emerald_sold = fmt(swap_res[1] / 10**6)
     swap_ledger_ether_bought = fmt(swap_res[2] / 10**18)
@@ -113,7 +121,9 @@ for address in addresses:
     swap_ledger_emerald_received = fmt(swap_res[4] / 10**6)
     swap_ledger_eth_received = fmt(swap_res[5] / 10**18)
     swap_ledger_tx_list = ', '.join(set(swap_res[6]))
+    swap_ledger_received_from = set(swap_res[7])
  
+
     os_res = os_swaps.get(address, (0,0,0,0,[]))
     os_eth_spent = fmt(os_res[0] / 10**18)
     os_eth_gained = fmt(os_res[1] / 10**18)
@@ -128,10 +138,6 @@ for address in addresses:
     total_eth_bal += eth_balance
 
 
-    example_txs = ["0xc3db83830aD22985077b1B704F1A203fCc62E0bf",
-                   "0x608F641B55444d7197D636a5Cb9053d1cE783bB0",
-                   "0x4AA7fbC6A793cbc1778804964c8903488DF82309",
-                   ""]
     in_transfers = 0
     for in_tx in transfer_inbound:
         if(in_tx not in erc20_tx_list):
@@ -145,8 +151,6 @@ for address in addresses:
 
     n1 = 0#len(set(erc20_tx_list))
     n2 = 0#len(set(transfer_res[3]))
-    #if(address in example_txs): 
-    
 
     if(n1 < n2):
         #test for balance
@@ -161,15 +165,18 @@ for address in addresses:
         print(f"eth_balance = {eth_balance}")
         #print(f"txs = {swap_ledger_tx_list}") 
     
-    correlation.append([address, emerald_balance_agg, eth_balance, erc20_input_tx_count, erc20_output_tx_count, erc20_amount_in, erc20_amount_out, erc20_balance,
-                        transfer_input_tx_count, transfer_output_tx_count, transfer_output_balance, swap_ledger_emerald_bought,
-                        swap_ledger_emerald_sold, swap_ledger_ether_bought, swap_ledger_ether_sold, swap_ledger_emerald_received,
-                        swap_ledger_eth_received, swap_ledger_tx_list, os_eth_spent, os_eth_gained, os_emeralds_bought, os_emeralds_sold,
-                        os_txs])
+    correlation[address]= dictify([address, emerald_balance_agg, eth_balance, erc20_input_tx_count, erc20_output_tx_count, erc20_amount_in, erc20_amount_out, erc20_balance,
+                        transfer_input_tx_count, transfer_output_tx_count, transfer_output_balance, 
+                        swap_ledger_emerald_bought,swap_ledger_emerald_sold, swap_ledger_ether_bought, swap_ledger_ether_sold, swap_ledger_emerald_received,
+                        swap_ledger_eth_received, swap_ledger_tx_list, swap_ledger_received_from, 
+                        os_eth_spent, os_eth_gained, os_emeralds_bought, os_emeralds_sold,os_txs])
 
 print(f"Total lost: {-total_loss} ETH")
 print(f"Total eth balance: {-total_eth_bal} ETH")
     
+
+tx_set = set()
+
 import csv
 with open("v1_correlation.csv", 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=';')
