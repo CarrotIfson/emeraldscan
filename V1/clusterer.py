@@ -136,7 +136,6 @@ for ev in erc20transfer_events:
         txa.add(receiver) 
     if(txa != set()):
         tx_addresses[tx] = txa
-
 for ev in transfer_events:
     tx = ev[0]
     if(tx in os_swaps_txs):
@@ -170,24 +169,89 @@ for k in tx_addresses:
  
 clusters = [cl for cl in _clusters if len(cl) > 1]
 
-total_loss = 0
-total_loss_clustered = 0
 addresses_with_loss = []
+total_loss = 0
+paperhanded_loss = 0
+cost_based_loss = 0
 for adr in correlation:
     cr = correlation[adr]
     if(float(cr["emerald_balance"])>0):
+        #JUST IF THERES ETH LOSS
         if(float(cr["eth_balance"])<0):
-            total_loss += float(cr["eth_balance"])
             eth_spent = float(cr["os_eth_spent"]) +  float(cr["swap_ledger_ether_spent"]) 
+            eth_gained = float(cr["os_eth_gained"]) +  float(cr["swap_ledger_ether_gained"]) 
             emeralds_obtained =  float(cr["os_emeralds_bought"]) +  float(cr["swap_ledger_emerald_bought"])
             addresses_with_loss.append(adr)
+            total_loss += float(cr["eth_balance"])
+            paperhanded_loss += eth_gained - eth_spent
+        # COST BASED LOSS
+        # min(eth_spent,    
+        if(float(cr["eth_balance"])<0):
+            emeralds_obtained =  float(cr["os_emeralds_bought"]) +  float(cr["swap_ledger_emerald_bought"])
+            eth_spent = float(cr["os_eth_spent"]) +  float(cr["swap_ledger_ether_spent"]) 
+            avg_price = eth_spent / emeralds_obtained
+            current_debt = -float(cr["emerald_balance"])*avg_price
+            cost_based_loss += max(current_debt,float(cr["eth_balance"]))
 
-for laddr in addresses_with_loss:
-    for cl in clusters:
-        if(laddr in cl):
-            for addr in cl:
-                if(addr != laddr):
-                    if(float(correlation[addr]["eth_balance"]) > 0):
-                        total_loss_clustered += float(correlation[addr]["eth_balance"])
-print(f"Total VANILLA loss: {total_loss}") 
-print(f"Total CLUSTERED loss: {total_loss+total_loss_clustered}") 
+print(f"Total PAPER loss: {paperhanded_loss}") 
+print(f"Total COST BASED loss: {cost_based_loss}") 
+
+clustered_correlation = {}
+for addr in correlation:
+    found = False
+    for i in range(len(clusters)):
+        if(addr in clusters[i]):
+            found = True
+            #if this cluster hasnt been added yet
+            if(clustered_correlation.get(i,0) == 0):
+                emerald_balance = 0
+                eth_balance = 0
+                os_eth_spent = 0
+                swap_ledger_ether_spent = 0
+                os_emeralds_bought = 0
+                swap_ledger_emerald_bought = 0
+                addresses = []
+                for ad in clusters[i]:
+                    emerald_balance += float(correlation[ad]["emerald_balance"])
+                    eth_balance += float(correlation[ad]["eth_balance"])
+                    os_eth_spent += float(correlation[ad]["os_eth_spent"])
+                    swap_ledger_ether_spent += float(correlation[ad]["swap_ledger_ether_spent"])
+                    os_emeralds_bought += float(correlation[ad]["os_emeralds_bought"])
+                    swap_ledger_emerald_bought += float(correlation[ad]["swap_ledger_emerald_bought"]) 
+                clustered_correlation[i] = {
+                    "emerald_balance":emerald_balance,
+                    "eth_balance":eth_balance,
+                    "os_eth_spent":os_eth_spent,
+                    "swap_ledger_ether_spent":swap_ledger_ether_spent,
+                    "os_emeralds_bought":os_emeralds_bought,
+                    "swap_ledger_emerald_bought":swap_ledger_emerald_bought,
+                    "clustered_addresses":addresses
+                } 
+    if(not found):
+        clustered_correlation[addr] = correlation[addr]
+
+print(f"Total addresses clustered {len(clustered_correlation.keys())}")
+
+total_loss = 0
+paperhanded_loss = 0
+cost_based_loss = 0
+for adr in clustered_correlation:
+    cr = clustered_correlation[adr]
+    if(float(cr["emerald_balance"])>0):
+        #JUST IF THERES ETH LOSS
+        if(float(cr["eth_balance"])<0):
+            eth_spent = float(cr["os_eth_spent"]) +  float(cr["swap_ledger_ether_spent"])  
+            emeralds_obtained =  float(cr["os_emeralds_bought"]) +  float(cr["swap_ledger_emerald_bought"])
+            addresses_with_loss.append(adr)
+            total_loss += float(cr["eth_balance"])
+            paperhanded_loss += float(cr["eth_balance"])
+        # COST BASED LOSS
+        # min(eth_spent,    
+        if(float(cr["eth_balance"])<0):
+            emeralds_obtained =  float(cr["os_emeralds_bought"]) +  float(cr["swap_ledger_emerald_bought"])
+            eth_spent = float(cr["os_eth_spent"]) +  float(cr["swap_ledger_ether_spent"]) 
+            avg_price = eth_spent / emeralds_obtained
+            current_debt = -float(cr["emerald_balance"])*avg_price
+            cost_based_loss += max(current_debt,float(cr["eth_balance"]))
+print(f"Total PAPER loss: {paperhanded_loss}") 
+print(f"Total COST BASED loss: {cost_based_loss}") 
