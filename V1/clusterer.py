@@ -171,7 +171,8 @@ for k in tx_addresses:
 clusters = [cl for cl in _clusters if len(cl) > 1]
 
 total_loss = 0
-total_loss_by_average = 0
+total_loss_clustered = 0
+addresses_with_loss = []
 for adr in correlation:
     cr = correlation[adr]
     if(float(cr["emerald_balance"])>0):
@@ -179,8 +180,14 @@ for adr in correlation:
             total_loss += float(cr["eth_balance"])
             eth_spent = float(cr["os_eth_spent"]) +  float(cr["swap_ledger_ether_spent"]) 
             emeralds_obtained =  float(cr["os_emeralds_bought"]) +  float(cr["swap_ledger_emerald_bought"])
-            avg_price = eth_spent / emeralds_obtained
-            print(f"Address {adr} Bought {emeralds_obtained} emeralds with {eth_spent} ETH - {avg_price} eth per emerald and has {float(cr['emerald_balance'])} remaining")
-            total_loss_by_average += (float(cr["emerald_balance"]) * avg_price)
+            addresses_with_loss.append(adr)
+
+for laddr in addresses_with_loss:
+    for cl in clusters:
+        if(laddr in cl):
+            for addr in cl:
+                if(addr != laddr):
+                    if(float(correlation[addr]["eth_balance"]) > 0):
+                        total_loss_clustered += float(correlation[addr]["eth_balance"])
 print(f"Total VANILLA loss: {total_loss}") 
-print(f"Total AVG loss: {total_loss_by_average}")
+print(f"Total CLUSTERED loss: {total_loss+total_loss_clustered}") 
