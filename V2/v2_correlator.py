@@ -7,6 +7,11 @@ def load(file_path):
         with open(file_path, 'r') as file: 
             content = file.read() 
             loaded_list = eval(content)
+            if(str(type(loaded_list)) == "<class 'dict'>"):
+                l = {}
+                for k in loaded_list:
+                    l[k.lower()] = loaded_list[k]
+                loaded_list = l
             return loaded_list 
     except Exception as e:
         print(f"Exception{e}")
@@ -64,6 +69,7 @@ transfer_events = load("./v2_transfer_events.json")
 swap_events = load("./v2_swap_events.json")
 #(tx_hash,block,sender,receiver,emerald_amount,eth_amount)
 
+
 erc20transfer_ledger = load("./v2_erc20transfer_ledger.json")
 #address:(input_tx_count, output_tx_count, amount_in, amount_out, balance, [tx_list], [recievedFrom])
 transfer_ledger = load("./v2_transfer_ledger.json")
@@ -75,7 +81,12 @@ os_swaps = parse_os("./v2_os_events.json")
 
 addresses = set(erc20transfer_ledger.keys()).union(transfer_ledger.keys()).union(swap_ledger.keys()).union(os_swaps.keys())
 print(f"Total addresses {len(addresses)}")
+print(len(swap_ledger.keys()))
 
+senders = set()
+for s in swap_events:
+    senders.add(s[2])
+print(len(senders))
 
 correlation = [["addresses","emerald_balance","eth_balance","erc20_input_tx_count","erc20_output_tx_count","erc20_amount_in",
                "erc20_amount_out","erc20_balance","transfer_input_tx_count","transfer_output_tx_count",
@@ -83,6 +94,7 @@ correlation = [["addresses","emerald_balance","eth_balance","erc20_input_tx_coun
                "swap_ledger_ether_gained","swap_ledger_ether_spent","swap_ledger_emerald_received",
                "swap_ledger_eth_received","swap_ledger_tx_list","os_eth_spent","os_eth_gained",
                "os_emeralds_bought","os_emeralds_sold"]]
+
 for address in addresses:
     erc20_res = erc20transfer_ledger.get(address,(0,0,0,0,0,[]))
     erc20_input_tx_count = erc20_res[0]
@@ -108,7 +120,8 @@ for address in addresses:
     swap_ledger_emerald_received = fmt(swap_res[4] / 10**6)
     swap_ledger_eth_received = fmt(swap_res[5] / 10**18)
     swap_ledger_tx_list = ', '.join(set(swap_res[6]))
- 
+
+
     os_res = os_swaps.get(address, (0,0,0,0,[]))
     os_eth_spent = fmt(os_res[0] / 10**18)
     os_eth_gained = fmt(os_res[1] / 10**18)

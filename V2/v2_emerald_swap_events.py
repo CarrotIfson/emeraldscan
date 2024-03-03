@@ -22,7 +22,10 @@ def parse_blocks(contract_addresses, contract_abi_v3, contract_abi_v2, initial_b
                 receiver = event["args"]["recipient"] 
                 emerald_amount = event["args"]["amount1"]
                 eth_amount = event["args"]["amount0"] 
+                print(event)
+                print((tx_hash,block,sender,receiver,emerald_amount,eth_amount))
                 swap_events.add((tx_hash,block,sender,receiver,emerald_amount,eth_amount)) 
+                input()
         events = contract_pool2.events.Swap.get_logs(fromBlock=x, toBlock=x)
         if (events != ()):
             for event in events:   
@@ -55,7 +58,7 @@ if __name__ == '__main__':
     print(w3.is_connected())
     swap_events = set()
     #multiprocess logic
-    num_process = 4
+    num_process = 1
     block_step = int((EMERALD_V2_LBLOCK - EMERALD_V2_FBLOCK) / num_process)
     workers_list = []
     queue = Queue()

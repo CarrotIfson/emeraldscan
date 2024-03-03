@@ -78,13 +78,18 @@ os_swaps = parse_os("./v1_os_events.json")
 addresses = set(erc20transfer_ledger.keys()).union(transfer_ledger.keys()).union(swap_ledger.keys()).union(os_swaps.keys())
 print(f"Total addresses {len(addresses)}")
 
+from dotenv import dotenv_values
+config = dotenv_values(".env")
+ALCHEMY_HTTP_ENDPOINT = config.get("ALCHEMY_HTTP_ENDPOINT").split(",")[1]
+web3 = web3.Web3(web3.Web3.HTTPProvider(ALCHEMY_HTTP_ENDPOINT))
 
 correlation = [["addresses","emerald_balance","eth_balance","erc20_input_tx_count","erc20_output_tx_count","erc20_amount_in",
-               "erc20_amount_out","erc20_balance","transfer_input_tx_count","transfer_output_tx_count",
-               "transfer_output_balance","swap_ledger_emerald_bought","swap_ledger_emerald_sold",
+               "erc20_amount_out","erc20_balance",
+               "transfer_input_tx_count","transfer_output_tx_count","transfer_output_balance",
+               "swap_ledger_emerald_bought","swap_ledger_emerald_sold",
                "swap_ledger_ether_gained","swap_ledger_ether_spent","swap_ledger_emerald_received",
-               "swap_ledger_eth_received","swap_ledger_tx_list","os_eth_spent","os_eth_gained",
-               "os_emeralds_bought","os_emeralds_sold"]]
+               "swap_ledger_eth_received","swap_ledger_received_from","swap_ledger_tx_list",
+               "os_eth_spent","os_eth_gained","os_emeralds_bought","os_emeralds_sold","ox_txs","is_contract"]]
 
 total_loss = 0
 total_eth_bal = 0
@@ -105,14 +110,15 @@ for address in addresses:
     transfer_inbound = parse_transfers(transfer_res[4])
     transfer_outbound = parse_transfers(transfer_res[5])
  
-    swap_res = swap_ledger.get(address,(0,0,0,0,0,0,[]))
+    swap_res = swap_ledger.get(address,(0,0,0,0,0,0,[],[]))
     swap_ledger_emerald_bought = fmt(swap_res[0] / 10**6)
     swap_ledger_emerald_sold = fmt(swap_res[1] / 10**6)
     swap_ledger_ether_bought = fmt(swap_res[2] / 10**18)
     swap_ledger_ether_sold = fmt(swap_res[3] / 10**18)
     swap_ledger_emerald_received = fmt(swap_res[4] / 10**6)
     swap_ledger_eth_received = fmt(swap_res[5] / 10**18)
-    swap_ledger_tx_list = ', '.join(set(swap_res[6]))
+    swap_ledger_tx_list = ', '.join(set(swap_res[6])) 
+    swap_ledger_eth_received_from = ', '.join(set(swap_res[7])) 
  
     os_res = os_swaps.get(address, (0,0,0,0,[]))
     os_eth_spent = fmt(os_res[0] / 10**18)
@@ -121,6 +127,9 @@ for address in addresses:
     os_emeralds_sold = os_res[3]
     os_txs = ', '.join(set(os_res[4]))
 
+    is_contract = False if web3.eth.get_code(address) == b'' else True
+
+    
     emerald_balance_agg = fmt(erc20_amount_in-erc20_amount_out)
     eth_balance = fmt(os_eth_gained - os_eth_spent + swap_ledger_ether_bought - swap_ledger_ether_sold)
     if(eth_balance<0):
@@ -164,8 +173,8 @@ for address in addresses:
     correlation.append([address, emerald_balance_agg, eth_balance, erc20_input_tx_count, erc20_output_tx_count, erc20_amount_in, erc20_amount_out, erc20_balance,
                         transfer_input_tx_count, transfer_output_tx_count, transfer_output_balance, swap_ledger_emerald_bought,
                         swap_ledger_emerald_sold, swap_ledger_ether_bought, swap_ledger_ether_sold, swap_ledger_emerald_received,
-                        swap_ledger_eth_received, swap_ledger_tx_list, os_eth_spent, os_eth_gained, os_emeralds_bought, os_emeralds_sold,
-                        os_txs])
+                        swap_ledger_eth_received, swap_ledger_tx_list, swap_ledger_eth_received_from, os_eth_spent, os_eth_gained, os_emeralds_bought, os_emeralds_sold,
+                        os_txs,is_contract])
 
 print(f"Total lost: {-total_loss} ETH")
 print(f"Total eth balance: {-total_eth_bal} ETH")
