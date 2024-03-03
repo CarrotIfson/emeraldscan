@@ -226,9 +226,7 @@ for addr in correlation:
                     "os_emeralds_bought":os_emeralds_bought,
                     "swap_ledger_emerald_bought":swap_ledger_emerald_bought,
                     "clustered_addresses":addresses
-                } 
-                print(clustered_correlation[i])
-                input()
+                }  
     if(not found):
         clustered_correlation[addr] = correlation[addr]
 
@@ -256,5 +254,5 @@ for adr in clustered_correlation:
             current_debt = -float(cr["emerald_balance"])*avg_price
             cost_based_loss += max(current_debt,float(cr["eth_balance"]))
             
-print(f"Total PAPER loss: {paperhanded_loss}") 
-print(f"Total COST BASED loss: {cost_based_loss}") 
+print(f"Total clustered PAPER loss: {paperhanded_loss}") 
+print(f"Total clustered COST BASED loss: {cost_based_loss}") 
