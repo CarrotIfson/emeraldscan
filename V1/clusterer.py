@@ -217,7 +217,7 @@ for addr in correlation:
                     os_eth_spent += float(correlation[ad]["os_eth_spent"])
                     swap_ledger_ether_spent += float(correlation[ad]["swap_ledger_ether_spent"])
                     os_emeralds_bought += float(correlation[ad]["os_emeralds_bought"])
-                    swap_ledger_emerald_bought += float(correlation[ad]["swap_ledger_emerald_bought"]) 
+                    swap_ledger_emerald_bought += float(correlation[ad]["swap_ledger_emerald_bought"])  
                 clustered_correlation[i] = {
                     "emerald_balance":emerald_balance,
                     "eth_balance":eth_balance,
@@ -227,6 +227,8 @@ for addr in correlation:
                     "swap_ledger_emerald_bought":swap_ledger_emerald_bought,
                     "clustered_addresses":addresses
                 } 
+                print(clustered_correlation[i])
+                input()
     if(not found):
         clustered_correlation[addr] = correlation[addr]
 
@@ -253,5 +255,6 @@ for adr in clustered_correlation:
             avg_price = eth_spent / emeralds_obtained
             current_debt = -float(cr["emerald_balance"])*avg_price
             cost_based_loss += max(current_debt,float(cr["eth_balance"]))
+            
 print(f"Total PAPER loss: {paperhanded_loss}") 
 print(f"Total COST BASED loss: {cost_based_loss}") 
