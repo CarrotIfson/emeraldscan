@@ -72,7 +72,7 @@ if __name__ == '__main__':
     print("All workers finished")
 
     #store all TRANSFER events 
-    with open("./v1_swap_events.json", "w") as file:
+    with open(f"./v1_swap_events_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json", "w") as file:
         json.dump(list(swap_events), file)
 
     #build ledger
@@ -128,5 +128,5 @@ if __name__ == '__main__':
 
 
     #store TRANSFER ledger events 
-    with open("./v1_swap_ledger.json", "w") as file:
+    with open(f"./v1_swap_ledger_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json", "w") as file:
         json.dump(swap_ledger, file) 

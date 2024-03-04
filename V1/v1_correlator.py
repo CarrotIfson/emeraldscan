@@ -20,6 +20,10 @@ def parse_os(file_path):
         price = int(sale["price"]["netAmount"]["raw"])
         tx_id = sale["txHash"] 
 
+        if(sale["block"]<=EMERALD_V1_FBLOCK and sale["block"]>=EMERALD_V1_LBLOCK):
+            print("AAA")
+            continue
+
         if(buyer not in os_swaps):
             # eth_spent, eth_gained,emeralds_bought, emeralds_sold, tx
             os_swaps[buyer] = (0,0,0,0,[])
@@ -59,27 +63,30 @@ def parse_transfers(tx_list):
         res[tx] = res[tx]+1
     return res
 
-erc20transfer_events = load("./v1_erc20transfer_events.json")
+from dotenv import dotenv_values
+config = dotenv_values(".env") 
+EMERALD_V1_FBLOCK=int(config.get("EMERALD_V1_FBLOCK"))
+EMERALD_V1_LBLOCK=int(config.get("EMERALD_V1_LBLOCK"))
+
+erc20transfer_events = load(f"./v1_erc20transfer_events_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json")
 #(tx_hash,block,sender,receiver,amount)
-transfer_events = load("./v1_transfer_events.json")
+transfer_events = load(f"./v1_transfer_events_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json")
 #(tx_hash,block,sender,receiver,token_id)
-swap_events = load("./v1_swap_events.json")
+swap_events = load(f"./v1_swap_events_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json")
 #(tx_hash,block,sender,receiver,emerald_amount,eth_amount)
 
-erc20transfer_ledger = load("./v1_erc20transfer_ledger.json")
+erc20transfer_ledger = load(f"./v1_erc20transfer_ledger_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json")
 #address:(input_tx_count, output_tx_count, amount_in, amount_out, balance, [tx_list], [recievedFrom])
-transfer_ledger = load("./v1_transfer_ledger.json")
+transfer_ledger = load(f"./v1_transfer_ledger_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json")
 #address:(input_tx_count, output_tx_count, balance, [tx_list], [inbound_txs], [outbound_txs])
-swap_ledger = load("./v1_swap_ledger.json")
+swap_ledger = load(f"./v1_swap_ledger_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json")
 #address:(emerald_bought, emerald_sold, ether_bought, ether_sold, emerald_received, eth_received, [tx_list], [received_from])
-os_swaps = parse_os("./v1_os_events.json")
+os_swaps = parse_os(f"./v1_os_events.json")
 #address:(eth_spent, eth_gained, emeralds_bought, emeralds_sold, [tx_list])
 
 addresses = set(erc20transfer_ledger.keys()).union(transfer_ledger.keys()).union(swap_ledger.keys()).union(os_swaps.keys())
 print(f"Total addresses {len(addresses)}")
 
-from dotenv import dotenv_values
-config = dotenv_values(".env")
 ALCHEMY_HTTP_ENDPOINT = config.get("ALCHEMY_HTTP_ENDPOINT").split(",")[1]
 web3 = web3.Web3(web3.Web3.HTTPProvider(ALCHEMY_HTTP_ENDPOINT))
 
@@ -180,7 +187,7 @@ print(f"Total lost: {-total_loss} ETH")
 print(f"Total eth balance: {-total_eth_bal} ETH")
     
 import csv
-with open("v1_correlation.csv", 'w', newline='') as csvfile:
+with open(f"v1_correlation_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.csv", 'w', newline='') as csvfile:
     writer = csv.writer(csvfile, delimiter=';')
     writer.writerows(correlation)
 

@@ -69,7 +69,7 @@ if __name__ == '__main__':
     print("All workers finished")
 
     #store all TRANSFER events 
-    with open("./v1_transfer_events.json", "w") as file:
+    with open(f"./v1_transfer_events_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json", "w") as file:
         json.dump(list(transfer_events), file)
 
     #build ledger
@@ -102,5 +102,5 @@ if __name__ == '__main__':
         transfer_ledger[receiver] = (receiver_in_tx, receiver_out_tx, receiver_balance, receiver_txs,receiver_inbound_txs,receiver_outbound_txs)
 
     #store TRANSFER ledger events 
-    with open("./v1_transfer_ledger.json", "w") as file:
+    with open(f"./v1_transfer_ledger_{EMERALD_V1_FBLOCK}_{EMERALD_V1_LBLOCK}.json", "w") as file:
         json.dump(transfer_ledger, file)
