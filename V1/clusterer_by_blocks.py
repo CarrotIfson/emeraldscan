@@ -194,13 +194,19 @@ for adr in pe_correlation:
             eth_spent = float(cr["os_eth_spent"]) +  float(cr["swap_ledger_ether_spent"]) 
             eth_gained = float(cr["os_eth_gained"]) +  float(cr["swap_ledger_ether_gained"]) 
             avg_price = eth_spent / emeralds_obtained
-            current_debt = -float(cr["emerald_balance"])*avg_price
-            cost_based_loss += max(current_debt,float(cr["eth_balance"]))
-            addresses_with_loss[adr] = {"emeralds_obtained":emeralds_obtained
-                                        ,"eth_spent":eth_spent
-                                        ,"eth_gained":eth_gained
-                                        ,"avg_price":avg_price
-                                        ,"loss":cost_based_loss}
+            address_loss = max(-float(cr["emerald_balance"])*avg_price, float(cr["eth_balance"]))
+            cost_based_loss += address_loss
+            os_txs = cr["os_txs"]
+            uni_txs = cr["swap_ledger_tx_list"]
+            addresses_with_loss[adr] = {"address": adr
+                                        ,"emerald_balance_pre_exploit":cr["emerald_balance"]
+                                        ,"emeralds_obtained_pre_exploit":emeralds_obtained
+                                        ,"eth_spent_pre_exploit":eth_spent
+                                        ,"eth_gained_pre_exploit":eth_gained
+                                        ,"avg_price_pre_exploit":avg_price
+                                        ,"os_txs_pre_exploit":os_txs
+                                        ,"swaps_pre_exploit":uni_txs
+                                        ,"loss":address_loss}
 
 print(f"Total ETH-Balance loss: {total_loss}") 
 print(f"Total Gained-Spent loss: {paperhanded_loss}") 
@@ -295,12 +301,29 @@ del post_exploit_correlation["addresses"]
 
 eth_recouped = 0
 for adrs in addresses_with_loss:
-    if(adrs not in post_exploit_correlation.keys()):
+    if(adrs not in post_exploit_correlation.keys()): 
+        addresses_with_loss[adrs]["eth_gained_post_exploit"] = 0
+        addresses_with_loss[adrs]["swap_txs_post_exploit"] = ""
+        addresses_with_loss[adrs]["os_txs_post_exploit"] = ""
+        addresses_with_loss[adrs]["loss_post_exploit"] = addresses_with_loss[adrs]["loss"]
         continue
     obj = post_exploit_correlation[adrs]
     eth_gained = float(obj["os_eth_gained"]) +  float(obj["swap_ledger_ether_gained"]) 
-    eth_balance = float(obj["eth_balance"])
-    if(eth_balance > 0):
-        eth_recouped += eth_gained
+    
+    addresses_with_loss[adrs]["eth_gained_post_exploit"] = eth_gained
+    addresses_with_loss[adrs]["swap_txs_post_exploit"] = obj["swap_ledger_tx_list"]
+    addresses_with_loss[adrs]["os_txs_post_exploit"] = obj["os_txs"]
+    addresses_with_loss[adrs]["loss_post_exploit"] = addresses_with_loss[adrs]["loss"] + eth_gained
+    eth_recouped += eth_gained
+    
 
 print(f"after selling they had: {cost_based_loss+eth_recouped}")
+
+headers = addresses_with_loss[adrs].keys()
+import csv
+with open("./emerald_loss_v1.json", 'w', newline='') as csvfile:
+    # Create a CSV writer object
+    writer = csv.DictWriter(csvfile, fieldnames=headers, delimiter=";")
+    writer.writeheader()
+    for adrs  in addresses_with_loss:
+        writer.writerow(addresses_with_loss[adrs])
